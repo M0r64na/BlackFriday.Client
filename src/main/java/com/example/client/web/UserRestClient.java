@@ -21,7 +21,7 @@ public class UserRestClient {
     }
 
     @GetMapping
-    public ResponseEntity<String > getAllUsers(@RequestBody(required = false) LoginRequestDto loginRequest,
+    public ResponseEntity<String > getUsers(@RequestBody(required = false) LoginRequestDto loginRequest,
                                                @RequestParam(value = "username", required = false) String username) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(loginRequest);
         HttpEntity<Object> httpEntity = new HttpEntity<>(httpHeaders);
@@ -77,12 +77,7 @@ public class UserRestClient {
                     .queryParam("password", password);
             String url = uriComponentsBuilder.toUriString();
 
-            ResponseEntity<String> response = this.restTemplate.exchange(url, HttpMethod.PUT, httpEntity, String.class);
-
-            return ResponseEntity
-                    .status(response.getStatusCode())
-                    .headers(httpHeaders)
-                    .body("Successfully updated user profile");
+            return this.restTemplate.exchange(url, HttpMethod.PUT, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
             return ResponseEntity
