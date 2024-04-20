@@ -9,6 +9,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URLDecoder;
+
 @RestController
 @RequestMapping(value = "/users")
 public class UserRestClient {
@@ -32,7 +34,7 @@ public class UserRestClient {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                     .fromHttpUrl("http://localhost:8080/users")
                     .queryParam("username", username);
-            String url = uriComponentsBuilder.toUriString();
+            String url = uriComponentsBuilder.encode().toUriString();
 
             return this.restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
         }
@@ -75,7 +77,7 @@ public class UserRestClient {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                     .fromHttpUrl("http://localhost:8080/users")
                     .queryParam("password", password);
-            String url = uriComponentsBuilder.toUriString();
+            String url = uriComponentsBuilder.encode().toUriString();
 
             return this.restTemplate.exchange(url, HttpMethod.PUT, httpEntity, String.class);
         }

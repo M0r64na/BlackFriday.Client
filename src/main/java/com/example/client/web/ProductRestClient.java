@@ -10,9 +10,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-
 @RestController
 @RequestMapping(value = "/products")
 public class ProductRestClient {
@@ -73,7 +70,6 @@ public class ProductRestClient {
         HttpEntity<Object> httpEntity = new HttpEntity<>(productCreation.product(), httpHeaders);
 
         try {
-            prevName = URLDecoder.decode(prevName, StandardCharsets.UTF_8);
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                     .fromHttpUrl("http://localhost:8080/products")
                     .queryParam("prevName", prevName);
