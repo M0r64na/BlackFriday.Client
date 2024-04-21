@@ -1,12 +1,12 @@
 package com.example.client.web;
 
+import com.example.client.common.builder.interfaces.IExceptionResponseBuilder;
 import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
 import com.example.client.common.constants.RestTemplateRequest;
 import com.example.client.common.constants.RestTemplateResponse;
 import com.example.client.common.dto.LoginRequestDto;
 import com.example.client.common.dto.OrderCreationDto;
 import com.example.client.common.dto.OrderSummaryDto;
-import common.dto.ErrorResponseDto;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,10 +23,12 @@ public class OrderRestClient {
     private static final String ORDERS_URL = RestTemplateRequest.BASE_URL + RestTemplateRequest.ORDERS_ENDPOINT;
     private final RestTemplate restTemplate;
     private final IHttpHeadersBuilder httpHeadersBuilder;
+    private final IExceptionResponseBuilder exceptionResponseBuilder;
 
-    public OrderRestClient(RestTemplate restTemplate, IHttpHeadersBuilder httpHeadersBuilder) {
+    public OrderRestClient(RestTemplate restTemplate, IHttpHeadersBuilder httpHeadersBuilder, IExceptionResponseBuilder exceptionResponseBuilder) {
         this.restTemplate = restTemplate;
         this.httpHeadersBuilder = httpHeadersBuilder;
+        this.exceptionResponseBuilder = exceptionResponseBuilder;
     }
 
     @GetMapping
@@ -46,12 +48,7 @@ public class OrderRestClient {
             return this.restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 
@@ -69,12 +66,7 @@ public class OrderRestClient {
                     .body(RestTemplateResponse.PLACED_ORDER_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 }

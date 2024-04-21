@@ -1,5 +1,6 @@
 package com.example.client.web;
 
+import com.example.client.common.builder.interfaces.IExceptionResponseBuilder;
 import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
 import com.example.client.common.constants.RestTemplateRequest;
 import com.example.client.common.constants.RestTemplateResponse;
@@ -22,10 +23,12 @@ public class CampaignRestClient {
     private static final String CAMPAIGNS_URL = RestTemplateRequest.BASE_URL + RestTemplateRequest.CAMPAIGNS_ENDPOINT;
     private final RestTemplate restTemplate;
     private final IHttpHeadersBuilder httpHeadersBuilder;
+    private final IExceptionResponseBuilder exceptionResponseBuilder;
 
-    public CampaignRestClient(RestTemplate restTemplate, IHttpHeadersBuilder httpHeadersBuilder) {
+    public CampaignRestClient(RestTemplate restTemplate, IHttpHeadersBuilder httpHeadersBuilder, IExceptionResponseBuilder exceptionResponseBuilder) {
         this.restTemplate = restTemplate;
         this.httpHeadersBuilder = httpHeadersBuilder;
+        this.exceptionResponseBuilder = exceptionResponseBuilder;
     }
 
     @GetMapping
@@ -38,12 +41,7 @@ public class CampaignRestClient {
                     httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 
@@ -62,12 +60,7 @@ public class CampaignRestClient {
                     .body(RestTemplateResponse.STARTED_NEW_CAMPAIGN_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 
@@ -86,12 +79,7 @@ public class CampaignRestClient {
                     .body(RestTemplateResponse.STOPPED_CURRENT_CAMPAIGN_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 }

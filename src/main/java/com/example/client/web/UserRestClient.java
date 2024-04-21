@@ -1,10 +1,10 @@
 package com.example.client.web;
 
+import com.example.client.common.builder.interfaces.IExceptionResponseBuilder;
 import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
 import com.example.client.common.constants.RestTemplateRequest;
 import com.example.client.common.constants.RestTemplateResponse;
 import com.example.client.common.dto.LoginRequestDto;
-import common.dto.ErrorResponseDto;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -18,10 +18,12 @@ public class UserRestClient {
     private static final String USERS_URL = RestTemplateRequest.BASE_URL + RestTemplateRequest.USERS_ENDPOINT;
     private final RestTemplate restTemplate;
     private final IHttpHeadersBuilder httpHeadersBuilder;
+    private final IExceptionResponseBuilder exceptionResponseBuilder;
 
-    public UserRestClient(RestTemplate restTemplate, IHttpHeadersBuilder httpHeadersBuilder) {
+    public UserRestClient(RestTemplate restTemplate, IHttpHeadersBuilder httpHeadersBuilder, IExceptionResponseBuilder exceptionResponseBuilder) {
         this.restTemplate = restTemplate;
         this.httpHeadersBuilder = httpHeadersBuilder;
+        this.exceptionResponseBuilder = exceptionResponseBuilder;
     }
 
     @GetMapping
@@ -42,12 +44,7 @@ public class UserRestClient {
             return this.restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 
@@ -66,12 +63,7 @@ public class UserRestClient {
                     .body(RestTemplateResponse.REGISTERED_USER_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 
@@ -90,12 +82,7 @@ public class UserRestClient {
             return this.restTemplate.exchange(url, HttpMethod.PUT, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 
@@ -119,12 +106,7 @@ public class UserRestClient {
                     .body(RestTemplateResponse.DELETED_USER_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 }

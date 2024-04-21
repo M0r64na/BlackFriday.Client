@@ -1,11 +1,11 @@
 package com.example.client.web;
 
+import com.example.client.common.builder.interfaces.IExceptionResponseBuilder;
 import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
 import com.example.client.common.constants.RestTemplateRequest;
 import com.example.client.common.constants.RestTemplateResponse;
 import com.example.client.common.dto.LoginRequestDto;
 import com.example.client.common.dto.ProductCreationDto;
-import common.dto.ErrorResponseDto;
 import common.dto.ProductDto;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +20,12 @@ public class ProductRestClient {
     private static final String PRODUCTS_URL = RestTemplateRequest.BASE_URL + RestTemplateRequest.PRODUCTS_ENDPOINT;
     private final RestTemplate restTemplate;
     private final IHttpHeadersBuilder httpHeadersBuilder;
+    private final IExceptionResponseBuilder exceptionResponseBuilder;
 
-    public ProductRestClient(RestTemplate restTemplate, IHttpHeadersBuilder httpHeadersBuilder) {
+    public ProductRestClient(RestTemplate restTemplate, IHttpHeadersBuilder httpHeadersBuilder, IExceptionResponseBuilder exceptionResponseBuilder) {
         this.restTemplate = restTemplate;
         this.httpHeadersBuilder = httpHeadersBuilder;
+        this.exceptionResponseBuilder = exceptionResponseBuilder;
     }
 
     @GetMapping
@@ -45,12 +47,7 @@ public class ProductRestClient {
             return this.restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 
@@ -68,12 +65,7 @@ public class ProductRestClient {
                     .body(RestTemplateResponse.CREATED_PRODUCT_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 
@@ -92,12 +84,7 @@ public class ProductRestClient {
             return this.restTemplate.exchange(url, HttpMethod.PUT, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 
@@ -121,12 +108,7 @@ public class ProductRestClient {
                     .body(RestTemplateResponse.DELETED_PRODUCT_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
-            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
-
-            return ResponseEntity
-                    .status(ex.getStatusCode())
-                    .headers(httpHeaders)
-                    .body(errorResponse);
+            return this.exceptionResponseBuilder.buildErrorResponse(ex, httpHeaders);
         }
     }
 }
