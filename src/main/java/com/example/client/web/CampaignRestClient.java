@@ -1,6 +1,8 @@
 package com.example.client.web;
 
 import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
+import com.example.client.common.constants.RestTemplateRequest;
+import com.example.client.common.constants.RestTemplateResponse;
 import com.example.client.common.dto.CampaignCreationDto;
 import com.example.client.common.dto.CampaignSummaryDto;
 import com.example.client.common.dto.LoginRequestDto;
@@ -15,8 +17,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
-@RequestMapping(value = "/campaigns")
+@RequestMapping(value = RestTemplateRequest.CAMPAIGNS_ENDPOINT)
 public class CampaignRestClient {
+    private static final String CAMPAIGNS_URL = RestTemplateRequest.BASE_URL + RestTemplateRequest.CAMPAIGNS_ENDPOINT;
     private final RestTemplate restTemplate;
     private final IHttpHeadersBuilder httpHeadersBuilder;
 
@@ -31,7 +34,7 @@ public class CampaignRestClient {
         HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
-            return this.restTemplate.exchange("http://localhost:8080/campaigns", HttpMethod.GET,
+            return this.restTemplate.exchange(CAMPAIGNS_URL, HttpMethod.GET,
                     httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
@@ -50,13 +53,13 @@ public class CampaignRestClient {
         HttpEntity<CampaignSummaryDto> httpEntity = new HttpEntity<>(campaignCreation.campaignSummary(), httpHeaders);
 
         try {
-            ResponseEntity<String> response = this.restTemplate.exchange("http://localhost:8080/campaigns", HttpMethod.POST,
+            ResponseEntity<String> response = this.restTemplate.exchange(CAMPAIGNS_URL, HttpMethod.POST,
                     httpEntity, String.class);
 
             return ResponseEntity
                     .status(response.getStatusCode())
                     .headers(httpHeaders)
-                    .body("Successfully placed order");
+                    .body(RestTemplateResponse.STARTED_NEW_CAMPAIGN_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
             ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
@@ -74,13 +77,13 @@ public class CampaignRestClient {
         HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
-            ResponseEntity<String> response = this.restTemplate.exchange("http://localhost:8080/campaigns", HttpMethod.PUT,
+            ResponseEntity<String> response = this.restTemplate.exchange(CAMPAIGNS_URL, HttpMethod.PUT,
                     httpEntity, String.class);
 
             return ResponseEntity
                     .status(response.getStatusCode())
                     .headers(httpHeaders)
-                    .body("Successfully stopped current campaign");
+                    .body(RestTemplateResponse.STOPPED_CURRENT_CAMPAIGN_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
             ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);

@@ -1,6 +1,8 @@
 package com.example.client.web;
 
 import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
+import com.example.client.common.constants.RestTemplateRequest;
+import com.example.client.common.constants.RestTemplateResponse;
 import com.example.client.common.dto.LoginRequestDto;
 import common.dto.ErrorResponseDto;
 import org.springframework.http.*;
@@ -11,8 +13,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping(value = "/users")
+@RequestMapping(value = RestTemplateRequest.USERS_ENDPOINT)
 public class UserRestClient {
+    private static final String USERS_URL = RestTemplateRequest.BASE_URL + RestTemplateRequest.USERS_ENDPOINT;
     private final RestTemplate restTemplate;
     private final IHttpHeadersBuilder httpHeadersBuilder;
 
@@ -28,11 +31,11 @@ public class UserRestClient {
         HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
-            if(username == null) return this.restTemplate.exchange("http://localhost:8080/users", HttpMethod.GET,
+            if(username == null) return this.restTemplate.exchange(USERS_URL, HttpMethod.GET,
                     httpEntity, String.class);
 
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
-                    .fromHttpUrl("http://localhost:8080/users")
+                    .fromHttpUrl(USERS_URL)
                     .queryParam("username", username);
             String url = uriComponentsBuilder.encode().toUriString();
 
@@ -54,13 +57,13 @@ public class UserRestClient {
         HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
-            ResponseEntity<String> response = this.restTemplate.exchange("http://localhost:8080/users", HttpMethod.POST,
+            ResponseEntity<String> response = this.restTemplate.exchange(USERS_URL, HttpMethod.POST,
                     httpEntity, String.class);
 
             return ResponseEntity
                     .status(response.getStatusCode())
                     .headers(httpHeaders)
-                    .body("Successfully registered");
+                    .body(RestTemplateResponse.REGISTERED_USER_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
             ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
@@ -80,7 +83,7 @@ public class UserRestClient {
 
         try {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
-                    .fromHttpUrl("http://localhost:8080/users")
+                    .fromHttpUrl(USERS_URL)
                     .queryParam("password", password);
             String url = uriComponentsBuilder.encode().toUriString();
 
@@ -104,7 +107,7 @@ public class UserRestClient {
 
         try {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
-                    .fromHttpUrl("http://localhost:8080/users")
+                    .fromHttpUrl(USERS_URL)
                     .queryParam("id", id);
             String url = uriComponentsBuilder.toUriString();
 
@@ -113,7 +116,7 @@ public class UserRestClient {
             return ResponseEntity
                     .status(response.getStatusCode())
                     .headers(httpHeaders)
-                    .body("Successfully deleted user profile");
+                    .body(RestTemplateResponse.DELETED_USER_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
             ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);

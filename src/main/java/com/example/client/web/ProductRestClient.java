@@ -1,6 +1,8 @@
 package com.example.client.web;
 
 import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
+import com.example.client.common.constants.RestTemplateRequest;
+import com.example.client.common.constants.RestTemplateResponse;
 import com.example.client.common.dto.LoginRequestDto;
 import com.example.client.common.dto.ProductCreationDto;
 import common.dto.ErrorResponseDto;
@@ -13,8 +15,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
-@RequestMapping(value = "/products")
+@RequestMapping(value = RestTemplateRequest.PRODUCTS_ENDPOINT)
 public class ProductRestClient {
+    private static final String PRODUCTS_URL = RestTemplateRequest.BASE_URL + RestTemplateRequest.PRODUCTS_ENDPOINT;
     private final RestTemplate restTemplate;
     private final IHttpHeadersBuilder httpHeadersBuilder;
 
@@ -30,12 +33,12 @@ public class ProductRestClient {
         HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
-            if(campaign) return this.restTemplate.exchange("http://localhost:8080/campaigns", HttpMethod.GET, httpEntity, String.class);
+            if(campaign) return this.restTemplate.exchange(PRODUCTS_URL, HttpMethod.GET, httpEntity, String.class);
 
-            if(name == null) return this.restTemplate.exchange("http://localhost:8080/products", HttpMethod.GET, httpEntity, String.class);
+            if(name == null) return this.restTemplate.exchange(PRODUCTS_URL, HttpMethod.GET, httpEntity, String.class);
 
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
-                    .fromHttpUrl("http://localhost:8080/products")
+                    .fromHttpUrl(PRODUCTS_URL)
                     .queryParam("name", name);
             String url = uriComponentsBuilder.encode().toUriString();
 
@@ -57,7 +60,12 @@ public class ProductRestClient {
         HttpEntity<ProductDto> httpEntity = new HttpEntity<>(productCreation.product(), httpHeaders);
 
         try {
-            return this.restTemplate.exchange("http://localhost:8080/products", HttpMethod.POST, httpEntity, String.class);
+            ResponseEntity<String> response = this.restTemplate.exchange(PRODUCTS_URL, HttpMethod.POST, httpEntity, String.class);
+
+            return ResponseEntity
+                    .status(response.getStatusCode())
+                    .headers(httpHeaders)
+                    .body(RestTemplateResponse.CREATED_PRODUCT_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
             ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
@@ -77,7 +85,7 @@ public class ProductRestClient {
 
         try {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
-                    .fromHttpUrl("http://localhost:8080/products")
+                    .fromHttpUrl(PRODUCTS_URL)
                     .queryParam("prevName", prevName);
             String url = uriComponentsBuilder.encode().toUriString();
 
@@ -95,13 +103,13 @@ public class ProductRestClient {
 
     @DeleteMapping
     public ResponseEntity<?> deleteProduct(@RequestBody(required = false) LoginRequestDto loginRequest,
-                                        @RequestParam(value = "id") String id) {
+                                           @RequestParam(value = "id") String id) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(loginRequest);
         HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
-                    .fromHttpUrl("http://localhost:8080/products")
+                    .fromHttpUrl(PRODUCTS_URL)
                     .queryParam("id", id);
             String url = uriComponentsBuilder.toUriString();
 
@@ -110,7 +118,7 @@ public class ProductRestClient {
             return ResponseEntity
                     .status(response.getStatusCode())
                     .headers(httpHeaders)
-                    .body("Successfully deleted product");
+                    .body(RestTemplateResponse.DELETED_PRODUCT_MESSAGE);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
             ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
