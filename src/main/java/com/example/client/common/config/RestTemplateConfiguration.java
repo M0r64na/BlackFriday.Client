@@ -1,4 +1,4 @@
-package com.example.client.config;
+package com.example.client.common.config;
 
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.CookieStore;

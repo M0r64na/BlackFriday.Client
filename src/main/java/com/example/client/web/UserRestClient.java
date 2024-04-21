@@ -1,15 +1,14 @@
 package com.example.client.web;
 
-import com.example.client.builder.interfaces.IHttpHeadersBuilder;
-import com.example.client.dto.LoginRequestDto;
+import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
+import com.example.client.common.dto.LoginRequestDto;
+import common.dto.ErrorResponseDto;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URLDecoder;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -23,13 +22,14 @@ public class UserRestClient {
     }
 
     @GetMapping
-    public ResponseEntity<String > getUsers(@RequestBody(required = false) LoginRequestDto loginRequest,
-                                               @RequestParam(value = "username", required = false) String username) {
+    public ResponseEntity<?> getUsers(@RequestBody(required = false) LoginRequestDto loginRequest,
+                                      @RequestParam(value = "username", required = false) String username) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(loginRequest);
-        HttpEntity<Object> httpEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
-            if(username == null) return this.restTemplate.exchange("http://localhost:8080/users", HttpMethod.GET, httpEntity, String.class);
+            if(username == null) return this.restTemplate.exchange("http://localhost:8080/users", HttpMethod.GET,
+                    httpEntity, String.class);
 
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                     .fromHttpUrl("http://localhost:8080/users")
@@ -39,20 +39,23 @@ public class UserRestClient {
             return this.restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
+            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
+
             return ResponseEntity
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
-                    .body(ex.getMessage());
+                    .body(errorResponse);
         }
     }
 
     @PostMapping
-    public ResponseEntity<String> registerUser(@RequestBody LoginRequestDto loginRequest) {
+    public ResponseEntity<?> registerUser(@RequestBody LoginRequestDto loginRequest) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(loginRequest);
-        HttpEntity<Object> httpEntity = new HttpEntity<>(loginRequest, httpHeaders);
+        HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
-            ResponseEntity<String> response = this.restTemplate.exchange("http://localhost:8080/users", HttpMethod.POST, httpEntity, String.class);
+            ResponseEntity<String> response = this.restTemplate.exchange("http://localhost:8080/users", HttpMethod.POST,
+                    httpEntity, String.class);
 
             return ResponseEntity
                     .status(response.getStatusCode())
@@ -60,18 +63,20 @@ public class UserRestClient {
                     .body("Successfully registered");
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
+            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
+
             return ResponseEntity
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
-                    .body(ex.getMessage());
+                    .body(errorResponse);
         }
     }
 
     @PutMapping
-    public ResponseEntity<String> updateUser(@RequestBody(required = false) LoginRequestDto loginRequest,
-                                             @RequestParam(value = "password") String password) {
+    public ResponseEntity<?> updateUser(@RequestBody(required = false) LoginRequestDto loginRequest,
+                                        @RequestParam(value = "password") String password) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(loginRequest);
-        HttpEntity<Object> httpEntity = new HttpEntity<>(loginRequest, httpHeaders);
+        HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
@@ -82,18 +87,20 @@ public class UserRestClient {
             return this.restTemplate.exchange(url, HttpMethod.PUT, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
+            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
+
             return ResponseEntity
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
-                    .body(ex.getMessage());
+                    .body(errorResponse);
         }
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteUser(@RequestBody(required = false) LoginRequestDto loginRequest,
-                                             @RequestParam(value = "id") String id) {
+    public ResponseEntity<?> deleteUser(@RequestBody(required = false) LoginRequestDto loginRequest,
+                                        @RequestParam(value = "id") String id) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(loginRequest);
-        HttpEntity<Object> httpEntity = new HttpEntity<>(loginRequest, httpHeaders);
+        HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
@@ -109,10 +116,12 @@ public class UserRestClient {
                     .body("Successfully deleted user profile");
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
+            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
+
             return ResponseEntity
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
-                    .body(ex.getMessage());
+                    .body(errorResponse);
         }
     }
 }

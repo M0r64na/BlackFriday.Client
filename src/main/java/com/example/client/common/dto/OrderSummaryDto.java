@@ -1,4 +1,4 @@
-package com.example.client.dto;
+package com.example.client.common.dto;
 
 import java.util.Map;
 

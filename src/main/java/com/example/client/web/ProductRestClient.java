@@ -1,8 +1,10 @@
 package com.example.client.web;
 
-import com.example.client.builder.interfaces.IHttpHeadersBuilder;
-import com.example.client.dto.LoginRequestDto;
-import com.example.client.dto.ProductCreationDto;
+import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
+import com.example.client.common.dto.LoginRequestDto;
+import com.example.client.common.dto.ProductCreationDto;
+import common.dto.ErrorResponseDto;
+import common.dto.ProductDto;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -22,10 +24,10 @@ public class ProductRestClient {
     }
 
     @GetMapping
-    public ResponseEntity<String> getProducts(@RequestParam(value = "campaign", required = false) boolean campaign,
-                                              @RequestParam(value = "name", required = false) String name) {
+    public ResponseEntity<?> getProducts(@RequestParam(value = "campaign", required = false) boolean campaign,
+                                         @RequestParam(value = "name", required = false) String name) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders();
-        HttpEntity<Object> httpEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
             if(campaign) return this.restTemplate.exchange("http://localhost:8080/campaigns", HttpMethod.GET, httpEntity, String.class);
@@ -40,34 +42,38 @@ public class ProductRestClient {
             return this.restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
+            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
+
             return ResponseEntity
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
-                    .body(ex.getMessage());
+                    .body(errorResponse);
         }
     }
 
     @PostMapping
-    public ResponseEntity<String> createProduct(@RequestBody ProductCreationDto productCreation) {
+    public ResponseEntity<?> createProduct(@RequestBody ProductCreationDto productCreation) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(productCreation.loginRequest());
-        HttpEntity<Object> httpEntity = new HttpEntity<>(productCreation.product(), httpHeaders);
+        HttpEntity<ProductDto> httpEntity = new HttpEntity<>(productCreation.product(), httpHeaders);
 
         try {
             return this.restTemplate.exchange("http://localhost:8080/products", HttpMethod.POST, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
+            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
+
             return ResponseEntity
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
-                    .body(ex.getMessage());
+                    .body(errorResponse);
         }
     }
 
     @PutMapping
-    public ResponseEntity<String> updateProduct(@RequestBody ProductCreationDto productCreation,
-                                                @RequestParam(value = "prevName") String prevName) {
+    public ResponseEntity<?> updateProduct(@RequestBody ProductCreationDto productCreation,
+                                           @RequestParam(value = "prevName") String prevName) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(productCreation.loginRequest());
-        HttpEntity<Object> httpEntity = new HttpEntity<>(productCreation.product(), httpHeaders);
+        HttpEntity<ProductDto> httpEntity = new HttpEntity<>(productCreation.product(), httpHeaders);
 
         try {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
@@ -78,18 +84,20 @@ public class ProductRestClient {
             return this.restTemplate.exchange(url, HttpMethod.PUT, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
+            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
+
             return ResponseEntity
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
-                    .body(ex.getMessage());
+                    .body(errorResponse);
         }
     }
 
     @DeleteMapping
-    public ResponseEntity<String> deleteUser(@RequestBody(required = false) LoginRequestDto loginRequest,
-                                             @RequestParam(value = "id") String id) {
+    public ResponseEntity<?> deleteProduct(@RequestBody(required = false) LoginRequestDto loginRequest,
+                                        @RequestParam(value = "id") String id) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(loginRequest);
-        HttpEntity<Object> httpEntity = new HttpEntity<>(loginRequest, httpHeaders);
+        HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
             UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
@@ -105,10 +113,12 @@ public class ProductRestClient {
                     .body("Successfully deleted product");
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
+            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
+
             return ResponseEntity
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
-                    .body(ex.getMessage());
+                    .body(errorResponse);
         }
     }
 }

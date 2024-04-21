@@ -1,8 +1,10 @@
 package com.example.client.web;
 
-import com.example.client.builder.interfaces.IHttpHeadersBuilder;
-import com.example.client.dto.LoginRequestDto;
-import com.example.client.dto.OrderCreationDto;
+import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
+import com.example.client.common.dto.LoginRequestDto;
+import com.example.client.common.dto.OrderCreationDto;
+import com.example.client.common.dto.OrderSummaryDto;
+import common.dto.ErrorResponseDto;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,10 +27,10 @@ public class OrderRestClient {
     }
 
     @GetMapping
-    public ResponseEntity<String> getOrders(@RequestBody(required = false) LoginRequestDto loginRequest,
-                                            @RequestParam(name = "id", required = false) String id) {
+    public ResponseEntity<?> getOrders(@RequestBody(required = false) LoginRequestDto loginRequest,
+                                       @RequestParam(name = "id", required = false) String id) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(loginRequest);
-        HttpEntity<Object> httpEntity = new HttpEntity<>(loginRequest, httpHeaders);
+        HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
             if(id == null) return this.restTemplate.exchange("http://localhost:8080/orders", HttpMethod.GET, httpEntity, String.class);
@@ -41,26 +43,30 @@ public class OrderRestClient {
             return this.restTemplate.exchange(url, HttpMethod.GET, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
+            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
+
             return ResponseEntity
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
-                    .body(ex.getMessage());
+                    .body(errorResponse);
         }
     }
 
     @PostMapping
-    public ResponseEntity<String> placeOrder(@RequestBody OrderCreationDto orderCreation) {
+    public ResponseEntity<?> placeOrder(@RequestBody OrderCreationDto orderCreation) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(orderCreation.loginRequest());
-        HttpEntity<Object> httpEntity = new HttpEntity<>(orderCreation.orderSummary(), httpHeaders);
+        HttpEntity<OrderSummaryDto> httpEntity = new HttpEntity<>(orderCreation.orderSummary(), httpHeaders);
 
         try {
             return this.restTemplate.exchange("http://localhost:8080/orders", HttpMethod.POST, httpEntity, String.class);
         }
         catch (HttpServerErrorException | HttpClientErrorException ex) {
+            ErrorResponseDto errorResponse = ex.getResponseBodyAs(ErrorResponseDto.class);
+
             return ResponseEntity
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
-                    .body(ex.getMessage());
+                    .body(errorResponse);
         }
     }
 }

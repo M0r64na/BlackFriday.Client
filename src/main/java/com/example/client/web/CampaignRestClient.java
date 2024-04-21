@@ -1,8 +1,9 @@
 package com.example.client.web;
 
-import com.example.client.builder.interfaces.IHttpHeadersBuilder;
-import com.example.client.dto.CampaignCreationDto;
-import com.example.client.dto.LoginRequestDto;
+import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
+import com.example.client.common.dto.CampaignCreationDto;
+import com.example.client.common.dto.CampaignSummaryDto;
+import com.example.client.common.dto.LoginRequestDto;
 import common.dto.ErrorResponseDto;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -40,17 +41,16 @@ public class CampaignRestClient {
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
                     .body(errorResponse);
-
         }
     }
 
     @PostMapping
     public ResponseEntity<?> startNewCampaign(@RequestBody CampaignCreationDto campaignCreation) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(campaignCreation.loginRequest());
-        HttpEntity<?> httpEntity = new HttpEntity<>(campaignCreation.campaignSummary(), httpHeaders);
+        HttpEntity<CampaignSummaryDto> httpEntity = new HttpEntity<>(campaignCreation.campaignSummary(), httpHeaders);
 
         try {
-            ResponseEntity<?> response = this.restTemplate.exchange("http://localhost:8080/campaigns", HttpMethod.POST,
+            ResponseEntity<String> response = this.restTemplate.exchange("http://localhost:8080/campaigns", HttpMethod.POST,
                     httpEntity, String.class);
 
             return ResponseEntity
@@ -65,7 +65,6 @@ public class CampaignRestClient {
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
                     .body(errorResponse);
-
         }
     }
 
@@ -75,7 +74,7 @@ public class CampaignRestClient {
         HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
 
         try {
-            ResponseEntity<?> response = this.restTemplate.exchange("http://localhost:8080/campaigns", HttpMethod.PUT,
+            ResponseEntity<String> response = this.restTemplate.exchange("http://localhost:8080/campaigns", HttpMethod.PUT,
                     httpEntity, String.class);
 
             return ResponseEntity
@@ -90,7 +89,6 @@ public class CampaignRestClient {
                     .status(ex.getStatusCode())
                     .headers(httpHeaders)
                     .body(errorResponse);
-
         }
     }
 }

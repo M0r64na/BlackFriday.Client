@@ -1,7 +1,7 @@
-package com.example.client.builder;
+package com.example.client.common.builder;
 
-import com.example.client.builder.interfaces.IHttpHeadersBuilder;
-import com.example.client.dto.LoginRequestDto;
+import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
+import com.example.client.common.dto.LoginRequestDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
