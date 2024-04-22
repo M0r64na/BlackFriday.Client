@@ -9,4 +9,5 @@ public final class RestTemplateRequest {
     public static final String PRODUCTS_ENDPOINT = "/products";
     public static final String ORDERS_ENDPOINT = "/orders";
     public static final String CAMPAIGNS_ENDPOINT = "/campaigns";
+    public static final String LOGOUT_ENDPOINT = "/logout";
 }

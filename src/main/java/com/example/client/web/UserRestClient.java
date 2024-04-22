@@ -51,7 +51,7 @@ public class UserRestClient {
     @PostMapping
     public ResponseEntity<?> registerUser(@RequestBody LoginRequestDto loginRequest) {
         HttpHeaders httpHeaders = this.httpHeadersBuilder.buildHeaders(loginRequest);
-        HttpEntity<?> httpEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity<?> httpEntity = new HttpEntity<>(loginRequest, httpHeaders);
 
         try {
             ResponseEntity<String> response = this.restTemplate.exchange(USERS_URL, HttpMethod.POST,

@@ -10,4 +10,5 @@ public final class RestTemplateResponse {
     public static final String DELETED_PRODUCT_MESSAGE = "Successfully deleted product";
     public static final String REGISTERED_USER_MESSAGE = "Successfully registered user";
     public static final String DELETED_USER_MESSAGE = "Successfully deleted selected user";
+    public static final String LOGGED_OUT_USER_MESSAGE = "Successfully logged out";
 }
