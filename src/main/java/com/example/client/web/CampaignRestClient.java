@@ -2,12 +2,11 @@ package com.example.client.web;
 
 import com.example.client.common.builder.interfaces.IExceptionResponseBuilder;
 import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
-import com.example.client.common.constants.RestTemplateRequest;
-import com.example.client.common.constants.RestTemplateResponse;
+import com.example.client.common.constant.RestTemplateRequest;
+import com.example.client.common.constant.RestTemplateResponse;
 import com.example.client.common.dto.CampaignCreationDto;
 import com.example.client.common.dto.CampaignSummaryDto;
 import com.example.client.common.dto.LoginRequestDto;
-import common.dto.ErrorResponseDto;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;

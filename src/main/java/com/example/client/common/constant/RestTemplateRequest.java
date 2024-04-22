@@ -1,4 +1,4 @@
-package com.example.client.common.constants;
+package com.example.client.common.constant;
 
 public final class RestTemplateRequest {
     private RestTemplateRequest() {}

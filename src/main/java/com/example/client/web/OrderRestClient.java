@@ -2,8 +2,8 @@ package com.example.client.web;
 
 import com.example.client.common.builder.interfaces.IExceptionResponseBuilder;
 import com.example.client.common.builder.interfaces.IHttpHeadersBuilder;
-import com.example.client.common.constants.RestTemplateRequest;
-import com.example.client.common.constants.RestTemplateResponse;
+import com.example.client.common.constant.RestTemplateRequest;
+import com.example.client.common.constant.RestTemplateResponse;
 import com.example.client.common.dto.LoginRequestDto;
 import com.example.client.common.dto.OrderCreationDto;
 import com.example.client.common.dto.OrderSummaryDto;
